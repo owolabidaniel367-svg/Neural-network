@@ -267,6 +267,6 @@ console.log("001:", neural.run([0, 0, 1], [0, 1])); // odd
 console.log("010:", neural.run([0, 1, 0], [0, 1])); // odd
 console.log("011:", neural.run([0, 1, 1], [1, 0])); // even
 console.log("100:", neural.run([1, 0, 0], [0, 1])); // odd
-console.log("101:", neural.run([1, 0, 1], [1, 0])); // even
+console.log("101:", neural.run([1, 0, 25], [1, 0])); // even
 console.log("110:", neural.run([1, 1, 0], [1, 0])); // even
 console.log("111:", neural.run([1, 1, 1], [0, 1])); // odd
