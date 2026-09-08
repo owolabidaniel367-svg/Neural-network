@@ -1,4 +1,5 @@
-
+import { getTrainingData } from "./parser.js";
+const trainingData = getTrainingData()
 function sigmoid(x) {
     return 1 / (1 + Math.exp(-x));
 }
@@ -215,7 +216,7 @@ train(trainingData, epochs) {
         totalLoss /= trainingData.length;
 
 
-        if (epoch % 1000 === 0) {
+        if (epoch % 10 === 0) {
 
             console.log(
                 "Epoch:",
@@ -231,16 +232,7 @@ train(trainingData, epochs) {
    
 
 }
-const trainingData = [
-    { input: [0, 0, 0], output: [1, 0] }, // 0 ones -> even
-    { input: [0, 0, 1], output: [0, 1] }, // 1 one  -> odd
-    { input: [0, 1, 0], output: [0, 1] }, // 1 one  -> odd
-    { input: [0, 1, 1], output: [1, 0] }, // 2 ones -> even
-    { input: [1, 0, 0], output: [0, 1] }, // 1 one  -> odd
-    { input: [1, 0, 1], output: [1, 0] }, // 2 ones -> even
-    { input: [1, 1, 0], output: [1, 0] }, // 2 ones -> even
-    { input: [1, 1, 1], output: [0, 1] }, // 3 ones -> odd
-];
+
 
 function getbest(arr) {
 
@@ -259,14 +251,14 @@ let biggestIndex = 0;
 
     return [biggestIndex, biggest];
 }
-const neural = new NeuralNetwork(3, [12], 2);
+const neural = new NeuralNetwork(784, [2],10 );
 
-neural.train(trainingData, 300000);
-console.log("000:", neural.run([0, 0, 0], [1, 0])); // even
-console.log("001:", neural.run([0, 0, 1], [0, 1])); // odd
-console.log("010:", neural.run([0, 1, 0], [0, 1])); // odd
-console.log("011:", neural.run([0, 1, 1], [1, 0])); // even
-console.log("100:", neural.run([1, 0, 0], [0, 1])); // odd
-console.log("101:", neural.run([1, 0, 25], [1, 0])); // even
-console.log("110:", neural.run([1, 1, 0], [1, 0])); // even
-console.log("111:", neural.run([1, 1, 1], [0, 1])); // odd
+neural.train(trainingData, 1000);
+// console.log("000:", neural.run([0, 0, 0], [1, 0])); // even
+// console.log("001:", neural.run([0, 0, 1], [0, 1])); // odd
+// console.log("010:", neural.run([0, 1, 0], [0, 1])); // odd
+// console.log("011:", neural.run([0, 1, 1], [1, 0])); // even
+// console.log("100:", neural.run([1, 0, 0], [0, 1])); // odd
+// console.log("101:", neural.run([1, 0, 1], [1, 0])); // even
+// console.log("110:", neural.run([1, 1, 0], [1, 0])); // even
+// console.log("111:", neural.run([1, 1, 1], [0, 1])); // odd
