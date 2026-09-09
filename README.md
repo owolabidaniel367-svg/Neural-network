@@ -769,6 +769,8 @@ Repeated over many examples and iterations, this process allows the network to l
 ## Author
 
 **Owolabi Daniel**
+
+
 Computer science student interested in:
 
 - Computational Complexity
