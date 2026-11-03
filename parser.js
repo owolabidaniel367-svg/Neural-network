@@ -42,3 +42,41 @@ for (let i = 0; i < count; i++) {
 }
  return trainingData
 }
+// Testing data code
+// Testing labels
+const testLabelsCompressed = fs.readFileSync('./data/t10k-labels-idx1-ubyte.gz');
+const testLabelsBuffer = zlib.gunzipSync(testLabelsCompressed);
+const testNumLabels = testLabelsBuffer.readUInt32BE(4);
+
+const testLabels = [];
+for (let i = 0; i < testNumLabels; i++) {
+  testLabels.push(testLabelsBuffer.readUInt8(8 + i));
+}
+
+// Testing images
+// Testing images
+const testImgCompressed = fs.readFileSync('./data/t10k-images-idx3-ubyte.gz')
+const testImagesBuffer = zlib.gunzipSync(testImgCompressed);
+const testCount = testImagesBuffer.readUInt32BE(4)
+const testRows = testImagesBuffer.readUInt32BE(8)
+const testCols = testImagesBuffer.readUInt32BE(12)
+
+const testImages = [];
+for (let i = 0; i < testCount; i++) {
+  let image = [];
+  for (let t = 0; t < 784; t++) {
+    const pixelValue = testImagesBuffer.readUInt8(16 + i * testRows * testCols + t);
+    image.push(pixelValue/255);
+  }
+  testImages.push(image);
+}
+export function getTestingData() {
+  const testingData = [];
+  for (let i = 0; i < testCount; i++) {
+    const output = new Array(10).fill(0);
+    output[testLabels[i]] = 1;
+    testingData.push({ input: testImages[i], output });
+  }
+  return testingData;
+}
+console.log(testLabels.length)

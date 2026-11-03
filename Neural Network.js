@@ -4,27 +4,35 @@ function sigmoid(x) {
     return 1 / (1 + Math.exp(-x));
 }
 // Neurons
+console.log(trainingData.length)
 class Neuron {
     constructor(inputCount) {
-        this.weights = [];
-        this.bias = Math.random();
+        this.weights = new Float32Array(inputCount);
+        this.bias = 0
         this.activation;
         this.activationDerivative;
         this.errorloss;
         this.inputs;
         this.delta;
+      
 
-        for (let i = 0; i < inputCount; i++) {
-            this.weights.push(Math.random());
-        }
+   const limit = Math.sqrt(6 / inputCount)
+
+for (let i = 0; i < inputCount; i++) {
+    this.weights[i] = (
+        (Math.random() * 2 - 1) * limit
+    )
+}
     }
-
     forward(inputs) {
         let sum = this.bias;
         this.inputs = inputs
-        for (let i = 0; i < inputs.length; i++) {
-            sum += inputs[i] * this.weights[i];
-        }
+       const weights = this.weights;
+const length = weights.length;
+
+for (let i = 0; i < length; i++) {
+    sum += inputs[i] * weights[i];
+}
         this.activation = sigmoid(sum)
         this.activationDerivative = this.activation * (1-this.activation)
         
@@ -63,8 +71,17 @@ class Layer {
  
     }
      forward(inputs) {
-        return this.neurons.map(neuron => neuron.forward(inputs));
+          this.inputs = inputs;
+
+    const outputs =  new Float32Array(this.neurons.length);
+
+    for (let i = 0; i < this.neurons.length; i++) {
+        outputs[i] = this.neurons[i].forward(inputs);
     }
+
+    return outputs;
+}
+    
        update(learningRate) {
 
         for (let neuron of this.neurons) {
@@ -89,8 +106,8 @@ class NeuralNetwork {
         this.expectedOutput;
         this.Prediction
         this.errorloss = []
-        this.learningRate = 0.5;
-
+        this.learningRate = 0.0001;
+        
         for (let i = 0; i < layerArr.length; i++) {
 
             if (i === 0) {
@@ -194,26 +211,22 @@ Trainingloss(output){
     return sum
 }
 train(trainingData, epochs) {
-
+       let index = 0
     for (let epoch = 0; epoch < epochs; epoch++) {
 
-        let totalLoss = 0;
+        let Loss = 0;
+        
 
-        for (let example of trainingData) {
-
+      
             // Forward propagation
-            this.run(example.input,example.output);
+            this.run(trainingData[index].input,trainingData[index].output);
 
             // Calculate loss
-            totalLoss += this.Trainingloss(this.Prediction);
+            Loss= this.Trainingloss(this.Prediction);
 
             // Backpropagation
             this.Backdrop();
 
-        }
-
-        // Average loss for this epoch
-        totalLoss /= trainingData.length;
 
 
         if (epoch % 10 === 0) {
@@ -222,10 +235,10 @@ train(trainingData, epochs) {
                 "Epoch:",
                 epoch,
                 "Loss:",
-                totalLoss);
+                Loss);
 
         }
-
+          index = (index+1)% trainingData.length
     }
 
 }
@@ -251,14 +264,7 @@ let biggestIndex = 0;
 
     return [biggestIndex, biggest];
 }
-const neural = new NeuralNetwork(784, [2],10 );
+const neural = new NeuralNetwork(784, [32],10 );
 
-neural.train(trainingData, 1000);
-// console.log("000:", neural.run([0, 0, 0], [1, 0])); // even
-// console.log("001:", neural.run([0, 0, 1], [0, 1])); // odd
-// console.log("010:", neural.run([0, 1, 0], [0, 1])); // odd
-// console.log("011:", neural.run([0, 1, 1], [1, 0])); // even
-// console.log("100:", neural.run([1, 0, 0], [0, 1])); // odd
-// console.log("101:", neural.run([1, 0, 1], [1, 0])); // even
-// console.log("110:", neural.run([1, 1, 0], [1, 0])); // even
-// console.log("111:", neural.run([1, 1, 1], [0, 1])); // odd
+neural.train(trainingData, 100000);
+
