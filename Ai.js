@@ -1,10 +1,12 @@
-import { getTrainingData } from "./parser.js";
-const trainingData = getTrainingData()
+// import { getTrainingData,getTestingData } from "./parser.js";
+// import fs from 'fs';
+// const trainingData = getTrainingData()
+// const TestingData = getTestingData()
 function sigmoid(x) {
     return 1 / (1 + Math.exp(-x));
 }
 // Neurons
-console.log(trainingData.length)
+
 class Neuron {
     constructor(inputCount) {
         this.weights = new Float32Array(inputCount);
@@ -99,14 +101,14 @@ class Layer {
 
 
 // Neural Network
-class NeuralNetwork {
+export default class NeuralNetwork {
     constructor(inputCount, layerArr, outputCount) {
         this.inputCount = inputCount
         this.layers = [];
         this.expectedOutput;
         this.Prediction
         this.errorloss = []
-        this.learningRate = 0.0001;
+        this.learningRate = 0.001;
         
         for (let i = 0; i < layerArr.length; i++) {
 
@@ -126,23 +128,74 @@ class NeuralNetwork {
             outputCount
         );
     }
-run(arr,expectedOutput){
-    let cond;
+run(arr, expectedOutput = this.expectedOutput) {
     if (this.inputCount !== arr.length) {
         throw new Error("Input size mismatch");
     }
-  this.expectedOutput = expectedOutput
+    this.expectedOutput = expectedOutput;
     let output = this.layers[0].forward(arr);
     for (let i = 1; i < this.layers.length; i++) {
         output = this.layers[i].forward(output);
     }
     output = this.outputLayer.forward(output);
-    this.Prediction = output
-     const predicted = getbest(this.Prediction);
-    const actual = getbest(this.expectedOutput);
-    const correct = predicted[0] === actual[0];
+    this.Prediction = output;
 
-    return { predicted, correct }
+    return output;
+}
+
+saveModel(filename) {
+
+    const model = {
+        inputCount: this.inputCount,
+
+        layers: this.layers.map(layer =>
+            layer.neurons.map(neuron => ({
+                weights: Array.from(neuron.weights),
+                bias: neuron.bias
+            }))
+        ),
+
+        outputLayer: this.outputLayer.neurons.map(neuron => ({
+            weights: Array.from(neuron.weights),
+            bias: neuron.bias
+        }))
+    };
+
+    fs.writeFileSync(
+        filename,
+        JSON.stringify(model)
+    );
+
+    console.log("Model saved successfully!");
+}
+loadModel(model) {
+
+    // const model = JSON.parse(
+    //     fs.readFileSync(filename, "utf8")
+    // );
+
+    for (let i = 0; i < this.layers.length; i++) {
+
+        for (let j = 0; j < this.layers[i].neurons.length; j++) {
+
+            const neuron = this.layers[i].neurons[j];
+            const saved = model.layers[i][j];
+
+            neuron.weights.set(saved.weights);
+            neuron.bias = saved.bias;
+        }
+    }
+
+    for (let i = 0; i < this.outputLayer.neurons.length; i++) {
+
+        const neuron = this.outputLayer.neurons[i];
+        const saved = model.outputLayer[i];
+
+        neuron.weights.set(saved.weights);
+        neuron.bias = saved.bias;
+    }
+
+    console.log("Model loaded successfully!");
 }
 Backdrop(){
 
@@ -210,7 +263,48 @@ Trainingloss(output){
     sum = sum/output.length
     return sum
 }
+test(testingData){
+    testingData = shuffle(testingData)
+    let epochs = testingData.length
+    let wrongCount = 0
+    let rightCount = 0
+    let value 
+    let numbersfailed = [0,0,0,0,0,0,0,0,0,0]
+    for (let epoch = 0; epoch < epochs; epoch++) {
+        let loss = 0
+       
+        let TestOutput = testingData[epoch].output
+        let Num = testingData[epoch].outputNum
+         this.run(testingData[epoch].input, TestOutput);   
+           loss =   this.Trainingloss(this.Prediction);
+           let predIndex = getbest(this.Prediction)
+           let outIndex = getbest(TestOutput)
+           if(predIndex === outIndex){
+            value = "True"
+            rightCount = rightCount + 1
+           }
+           else{
+            value = "Wrong"
+            wrongCount = wrongCount + 1
+            numbersfailed[Num] = numbersfailed[Num] + 1
+           }
+                 if (epoch % 10 === 0) {
+
+            console.log(
+                "Epoch:",
+                epoch,
+                "Loss:",
+                loss,
+                value  );
+
+        }
+           }
+           let accuracy = (rightCount/epochs) * 100
+           console.log(`This model got ${rightCount} right and ${wrongCount} wrong. Accuracy: ${accuracy}%`)
+           console.log(numbersfailed)
+}
 train(trainingData, epochs) {
+       trainingData = shuffle(trainingData)
        let index = 0
     for (let epoch = 0; epoch < epochs; epoch++) {
 
@@ -230,12 +324,15 @@ train(trainingData, epochs) {
 
 
         if (epoch % 10 === 0) {
-
+           let percentageDone = ((epoch/epochs) * 100)
+           let fixedPerecntage = percentageDone.toFixed(3)
             console.log(
                 "Epoch:",
                 epoch,
                 "Loss:",
-                Loss);
+                Loss,
+                 "Done:",
+                fixedPerecntage);
 
         }
           index = (index+1)% trainingData.length
@@ -262,9 +359,38 @@ let biggestIndex = 0;
         }
     }
 
-    return [biggestIndex, biggest];
+    return biggestIndex
 }
-const neural = new NeuralNetwork(784, [32],10 );
+function shuffle(array) {
+    for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
 
-neural.train(trainingData, 100000);
+        [array[i], array[j]] = [array[j], array[i]];
+    }
+
+    return array;
+}
+// const neural = new NeuralNetwork(784, [16,16],10 );
+
+// function train(){
+//  neural.loadModel("MNIST2.json")
+
+// neural.train(trainingData, 1000000);
+//  neural.saveModel("MNIST2.json")
+// }
+// function test(){
+//      neural.loadModel("MNIST2.json")
+// neural.test(TestingData)
+// }
+// function Modelmode(mode){
+//     if(mode === "train"){
+//         train()
+//     }
+//     if(mode === "test"){
+//         test()
+//     }
+// }
+
+// Modelmode("train")
+// Modelmode("test")
 

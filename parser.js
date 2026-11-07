@@ -75,8 +75,7 @@ export function getTestingData() {
   for (let i = 0; i < testCount; i++) {
     const output = new Array(10).fill(0);
     output[testLabels[i]] = 1;
-    testingData.push({ input: testImages[i], output });
+    testingData.push({ input: testImages[i], output, outputNum: testLabels[i] });
   }
   return testingData;
 }
-console.log(testLabels.length)
